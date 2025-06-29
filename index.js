@@ -8,7 +8,7 @@ app.post("/sendSms", async (req, res) => {
   const { phone, message } = req.body;
 
   if (!phone || !message) {
-    return res.status(400).send("Missing phone or message");
+    return res.status(400).json({ error: "Missing phone or message" });
   }
 
   try {
@@ -21,21 +21,24 @@ app.post("/sendSms", async (req, res) => {
       }),
       {
         headers: {
-          apiKey: process.env.AFRICASTALKING_API_KEY, // tumia env variable
+          apiKey: process.env.AFRICASTALKING_API_KEY,
           "Content-Type": "application/x-www-form-urlencoded",
         },
       }
     );
 
-    return res.status(200).send(response.data);
+    return res.status(200).json(response.data);
   } catch (error) {
     console.error("SMS Error:", error.response?.data || error.message);
-    return res.status(500).send("Failed to send SMS");
+    return res.status(500).json({
+      error: "Failed to send SMS",
+      details: error.response?.data || error.message,
+    });
   }
 });
 
-// 🔥 Hii ndiyo muhimu kwa Render
+// 🔥 Muhimu kwa Render
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`SMS service running on port ${PORT}`);
+  console.log(`✅ SMS service running on port ${PORT}`);
 });
