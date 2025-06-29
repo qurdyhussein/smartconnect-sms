@@ -1,7 +1,10 @@
-const functions = require("firebase-functions");
+const express = require("express");
 const axios = require("axios");
+const app = express();
 
-exports.sendSms = functions.https.onRequest(async (req, res) => {
+app.use(express.json());
+
+app.post("/sendSms", async (req, res) => {
   const { phone, message } = req.body;
 
   if (!phone || !message) {
@@ -18,7 +21,7 @@ exports.sendSms = functions.https.onRequest(async (req, res) => {
       }),
       {
         headers: {
-          apiKey: "atsk_3940de98e4541289ec77659f2b5a6bcb05cafe1393b94e81c88fdad02c6e1e366da1a219", // badilisha na yako
+          apiKey: process.env.AFRICASTALKING_API_KEY, // tumia env variable
           "Content-Type": "application/x-www-form-urlencoded",
         },
       }
@@ -26,7 +29,13 @@ exports.sendSms = functions.https.onRequest(async (req, res) => {
 
     return res.status(200).send(response.data);
   } catch (error) {
-    console.error("SMS Error:", error.response && error.response.data ? error.response.data : error.message);
+    console.error("SMS Error:", error.response?.data || error.message);
     return res.status(500).send("Failed to send SMS");
   }
+});
+
+// 🔥 Hii ndiyo muhimu kwa Render
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`SMS service running on port ${PORT}`);
 });
